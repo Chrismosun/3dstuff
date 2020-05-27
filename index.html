@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset=utf-8>
+	<title>These are 50 Baumeister objects</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	
+</head>
+
+
+<body>
+	<ul>
+		
+
+		<li class="dropdown">
+			<a href="#" class="dropbtn">Select a puzzle</a>
+			<div class="dropdown-content">
+				<div id="P50"></div>
+			</div>
+		</li>
+
+		
+		
+	</ul>
+
+
+
+	
+	<script src="js/three.js"></script>
+	<script src="js/OrbitControls.js"></script>
+	<script src="js/FileLoader.js"></script>
+	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+	<script>
+		THREE.Cache.enabled =true;
+		var position = [5, 1, 1, 2, 2, 3, 3, 4, 4, 5];
+		var scene = new THREE.Scene();
+		var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		var loader = new THREE.FileLoader();
+		var renderer = new THREE.WebGLRenderer();
+		
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		document.body.appendChild(renderer.domElement);
+		camera.position.z = 9;
+		controls = new THREE.OrbitControls(camera, renderer.domElement);
+		
+
+		var doButtonPress = function () {
+			loadNewPuzzle($(this).data('id'));
+		}
+
+		generateButtons($("#P50"), 50, 1);
+		
+		
+			
+
+		function generate_puzzle(set) {
+			while(scene.children.length > 0){ 
+    			scene.remove(scene.children[0]); 
+					}
+
+			s = 0;
+			set =set.split("\n").map(function(row){return row.split(",");})
+			for (r = 1; r < 6; r++) {
+				for (c = 1; c < 11; c++) {
+					pos = (set[r - 1][c - 1]);
+					
+					if (pos == "0") { continue; }
+					if (pos == "1") { farbe = "red"; }
+					if (pos == "2") { farbe = "darkorange"; }
+					if (pos == "3") { farbe = "gold"; }
+					if (pos == "4") { farbe = "olive"; }
+					if (pos == "5") { farbe = "pink"; }
+					if (pos == "6") { farbe = "steelblue"; }
+					if (pos == "7") { farbe = "purple"; }
+					if (pos == "8") { farbe = "silver"; }
+
+					if (c % 2) {
+						var geometry = new THREE.BoxGeometry(.9, .9, .9);
+						offset = 1;
+					}
+					else {
+						var geometry = new THREE.BoxGeometry(.9, .9, .9);
+						offset = 0;
+					}
+					var geo = new THREE.EdgesGeometry(geometry);
+					var mat = new THREE.LineBasicMaterial({ color: farbe, linewidth: 4 });
+					//var material = new THREE.MeshBasicMaterial( { color: farbe, linewidth: 2 } );
+					var wireframe = new THREE.LineSegments(geo, mat);
+					//s=new THREE.Mesh(geometry, material)
+					wireframe.position.x = position[(c % 10)] - 2.5;
+					wireframe.position.y = r - 2.5;  //Math.ceil(((r-1)*10+c)/10);
+					wireframe.position.z = offset;
+					scene.add(wireframe);
+					render();
+				}
+			}
+		}
+
+		function loadNewPuzzle(num) {
+			var pfad = ".\\data\\";
+			var ending = ".csv";
+			fileload(pfad + num + ending,generate_puzzle);
+		}
+
+		function generateButtons($target_div, num_buttons,start) {
+			var buttons = [];
+			for (var i = start; i < num_buttons + start; i++) {
+				buttons.push($('<input type="button" class="button" data-id="' + i + '" value="puzzle ' + i + '" />'));
+			}
+			$target_div.append(buttons);
+			$(".button").click(doButtonPress);
+
+		}
+			//load a text file a output the result to the console
+			function fileload(file , callback) {
+			loader.load(
+				// resource URL
+				file,
+				// Function when resource is loaded
+				function (data) {
+					// output the text to the console
+					callback(data);
+				},
+				// Function called when download progresses
+				function (xhr) {
+					console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+				},
+								// Function called when download errors
+				function (xhr) {
+					alert('An error happened when loading puzzel data');
+				}
+			);
+		}
+		var render = function () {
+			requestAnimationFrame(render);
+			renderer.render(scene, camera);
+			//camera.rotation.z +=0.05;
+		}
+						
+	</script>
+</body>
+
+</html>
